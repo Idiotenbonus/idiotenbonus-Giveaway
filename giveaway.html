@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDIOTENBONUS - Premium Christmas Link-in-Bio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ruby-red': '#E53935',
+                        'bright-gold': '#FFD700',
+                        'dark-blue-bg': '#0A192F',
+                        'card-navy': '#1F334E',
+                        'button-base': '#132C4A',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0A192F;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            user-select: none;
+        }
+
+        @keyframes snow-drift {
+            0% { transform: translate(0, -100vh); opacity: 0; }
+            10% { opacity: 1; }
+            50% { transform: translate(var(--wobble-x, 50px), 0vh); }
+            90% { opacity: 1; }
+            100% { transform: translate(0, 100vh); opacity: 0; }
+        }
+
+        .main-card {
+            background-color: rgba(31, 51, 78, 0.95);
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 10;
+            position: relative;
+        }
+
+        .link-button {
+            background-color: #132C4A;
+            color: white;
+            position: relative;
+            overflow: hidden; 
+            padding: 1.2rem; 
+            border-radius: 1rem;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .link-button:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9), 0 0 30px #FFD700;
+            background-color: #1F334E;
+        }
+        
+        .text-accent-icon { color: #FFD700; }
+        .text-accent-arrow { color: #E53935; }
+
+        .gold-shadow {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            border: 3px solid #FFD700;
+            background: linear-gradient(145deg, #E53935 0%, #B71C1C 100%);
+        }
+
+        .giveaway-box .bg-red-900 {
+            background-color: rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+
+<body class="bg-dark-blue-bg min-h-screen flex justify-center items-start pt-10 pb-16">
+
+    <div id="snow-container"></div>
+
+    <!-- HAUPTINHALT (KEIN AGE GATE MEHR) -->
+    <div id="main-content" class="w-full mx-auto" style="max-width: 420px;">
+        
+        <div class="main-card w-full">
+
+            <div class="text-center">
+                <img src="weihnachten-logo.jpg" 
+                     alt="Idiotsbonus Logo Banner" 
+                     class="w-full h-auto max-w-sm mx-auto mb-1" 
+                     onerror="this.onerror=null;this.src='https://placehold.co/420x100/101010/ffffff?text=LOGO+FEHLT'"
+                     style="object-fit: cover;">
+                
+                <h1 class="text-5xl font-black mb-3 leading-none">
+                    <span class="text-ruby-red">ID</span><span class="text-white">IOTENBONUS</span>
+                </h1>
+                
+                <a href="https://www.instagram.com/idiotenbonus/" target="_blank" class="inline-flex items-center text-gray-400 hover:text-ruby-red transition-colors mb-6">
+                    <i class="fab fa-instagram mr-2"></i>
+                    <span class="text-sm font-medium">@idiotenbonus</span>
+                </a>
+            </div>
+
+            <div class="giveaway-box p-4 mb-8 rounded-2xl gold-shadow">
+                <h2 class="text-2xl font-black text-white text-center mb-4">
+                    🎁 2000€ Christmas Giveaway! 🎅
+                </h2>
+                
+                <div class="flex space-x-3 text-sm font-semibold">
+                    
+                    <div class="flex-1 p-3 bg-red-900 bg-opacity-80 rounded-lg shadow-inner border border-red-700">
+                        <p class="text-center text-gray-100 mb-2 font-bold">Jede Einzahlung</p>
+                        <ul class="space-y-1 text-xs">
+                            <li class="flex justify-between"><span>Pro 50€ Einzahlung</span> <span class="text-bright-gold">→ 5 Ticket</span></li>
+                            <li class="flex justify-between"><span>Pro 100€ Einzahlung</span> <span class="text-bright-gold">→ 10 Tickets</span></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex-1 p-3 bg-red-900 bg-opacity-80 rounded-lg shadow-inner border border-red-700">
+                        <p class="text-center text-gray-100 mb-2 font-bold">Neukunden-Bonus</p>
+                        <ul class="space-y-1 text-xs">
+                            <li class="flex justify-between"><span>Pro 50€ Einzahlung</span> <span class="text-bright-gold">→ 10 Tickets</span></li>
+                            <li class="flex justify-between"><span>Pro 100€ Einzahlung</span> <span class="text-bright-gold">→ 20 Tickets</span></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- LINKBUTTONS – Giveaway-Link wurde entfernt -->
+            <div class="space-y-4">
+
+                <a href="https://tinyurl.com/PistoloMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">💰</span>
+                            Pistolo
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        100% bis zu 500€ + 200 Freegames
+                    </p>
+                </a>
+                
+                <a href="https://tinyurl.com/RTBetMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">🎰</span>
+                            RTBET
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        100% bis zu 500€ + 200 Freegames
+                    </p>
+                </a>
+                
+                <a href="https://tinyurl.com/Neon54Merkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">✨</span>
+                            Neon54
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        100% bis zu 500€ + 200 Freegames
+                    </p>
+                </a>
+
+                <a href="https://tinyurl.com/MyEmpireMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">👑</span>
+                            MyEmpire
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        100% bis zu 500€ + 200 Freegames
+                    </p>
+                </a>
+
+                <a href="https://tinyurl.com/LegianoMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">⚔️</span>
+                            Legiano
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        350% bis zu 500€ + 200 Freegames
+                    </p>
+                </a>
+
+                <a href="https://tinyurl.com/AllyspinMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">🚀</span>
+                            AllySpin
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        250% bis zu 1000€ + 200 Freegames
+                    </p>
+                </a>
+
+                <a href="https://tinyurl.com/SGCasinoMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">🔥</span>
+                            SGCasino
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        100% bis zu 500€ + 200 Freegames
+                    </p>
+                </a>
+
+                <a href="https://tinyurl.com/SlotspalaceMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">🏰</span>
+                            SlotsPalace
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        Willkommenspaket bis zu 1000€
+                    </p>
+                </a>
+
+                <a href="https://tinyurl.com/SpinbaraMerkur" target="_blank" class="link-button flex flex-col">
+                    <div class="flex items-center justify-between">
+                        <p class="font-extrabold text-xl flex items-center">
+                            <span class="text-2xl mr-3 text-accent-icon">🎁</span>
+                            Spinbara
+                        </p>
+                        <i class="fas fa-chevron-right text-accent-arrow"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-400 mt-1 pl-10">
+                        200% bis zu 3000$ Bonus
+                    </p>
+                </a>
+
+            </div>
+
+            <footer class="mt-12 text-center">
+                <p class="text-xs text-gray-500 mb-2">
+                    Glücksspiel kann süchtig machen. Spielen Sie verantwortungsbewusst.
+                </p>
+                <a href="https://www.bzga.de/service/infotelefone/gluecksspielsucht/" target="_blank" class="text-xs text-gray-500 hover:text-ruby-red underline">
+                    Hilfe unter BZgA.de
+                </a>
+                <p class="text-xs text-gray-600 mt-4">
+                    &copy; 2025 IDIOTENBONUS. Alle Rechte vorbehalten.
+                </p>
+            </footer>
+
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const snowContainer = document.getElementById('snow-container');
+            const numberOfSnowflakes = 100;
+
+            function getRandom(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function createSnowflake() {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+
+                const size = getRandom(2, 6);
+                snowflake.style.width = `${size}px`;
+                snowflake.style.height = `${size}px`;
+
+                snowflake.style.left = `${getRandom(-5, 105)}%`;
+
+                const wobbleDistance = getRandom(30, 80);
+                snowflake.style.setProperty('--wobble-x', `${wobbleDistance}px`);
+
+                const fallDuration = getRandom(15, 35);
+                const animationDelay = getRandom(0, fallDuration);
+                
+                snowflake.style.animation = `snow-drift ${fallDuration}s linear infinite`;
+                snowflake.style.animationDelay = `-${animationDelay}s`;
+                
+                snowflake.style.opacity = getRandom(0.4, 0.9);
+
+                snowContainer.appendChild(snowflake);
+            }
+
+            for (let i = 0; i < numberOfSnowflakes; i++) {
+                createSnowflake();
+            }
+        });
+    </script>
+
+</body>
+</html>

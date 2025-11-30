@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDIOTENBONUS - 2000€ Weihnachts-Giveaway</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        // Konfiguration für Tailwind CSS mit benutzerdefinierten Farben
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ruby-red': '#E53935', // Vibrantes Rot
+                        'bright-gold': '#FFD700', // Klassisches Gold (Akzent)
+                        'dark-bg-deep': '#050F1A', // Ultratiefer Hintergrund
+                        'card-navy-mid': '#1F334E', // Mittleres Navy (Kartenbasis)
+                        'button-base-dark': '#102542', // Dunkler Navy (Button-Basis)
+                        'accent-glow': '#FFC300', // Satter Gold-Glow
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* Allgemeine Stile */
+        body {
+            background-color: #050F1A;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Hauptkarte für Inhalt */
+        .main-card {
+            background-color: #1F334E;
+            border-radius: 1.5rem; 
+            padding: 1.5rem;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.9),
+                0 0 30px rgba(255, 195, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Goldener Rahmen für wichtige Sektionen */
+        .gold-section {
+            background-color: #102542;
+            border: 2px solid #FFD700;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(255, 195, 0, 0.6);
+        }
+
+        /* Call-to-Action Button (leitet jetzt zur Link-Übersicht weiter) */
+        .cta-button {
+            background: linear-gradient(135deg, #FFD700 0%, #E53935 100%);
+            color: #050F1A;
+            font-weight: 900;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 195, 0, 0.7);
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 195, 0, 1.0);
+        }
+
+        /* Age Gate Styles */
+        .age-gate-glow {
+            box-shadow: 0 0 25px rgba(255, 195, 0, 0.8); 
+            border: 3px solid #FFD700;
+        }
+        
+        #confirm-age-btn {
+            background-color: #FFD700 !important;
+            color: #050F1A !important; 
+            font-weight: 900 !important;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        #confirm-age-btn:hover {
+            transform: scale(1.02);
+            background-color: #e5c100 !important;
+        }
+    </style>
+
+    <!-- Firebase Setup für Age Gate -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Globale Variablen aus dem Canvas-Environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let userId = 'anonymous';
+        let isAuthReady = false;
+
+        /**
+         * Wartet auf eine erfolgreiche Firebase-Antwort mit exponentiellem Backoff.
+         */
+        async function retryWithBackoff(apiCall, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    return await apiCall();
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        console.error('API-Aufruf nach mehreren Versuchen fehlgeschlagen:', error);
+                        throw error;
+                    }
+                    const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        /**
+         * Öffnet das Age Gate und zeigt den Hauptinhalt an.
+         */
+        function openMainContent() {
+            document.getElementById('age-gate').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            // HÄNGE BEIDE KLICK-LISTENER SOFORT NACH DEM LADEN AN
+            document.getElementById('confirm-age-btn').addEventListener('click', () => {
+                setAgeGateStatus(true); 
+            });
+
+            document.getElementById('decline-age-btn').addEventListener('click', () => {
+                console.log('Zugriff verweigert. Weiterleitung zu Google.');
+                window.location.href = 'https://www.google.com'; // Weiterleitung
+            });
+            
+            // Wenn keine Firebase Config vorhanden ist, zeige das Age Gate sofort an.
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.error("Firebase Konfiguration fehlt. Datenbankfunktionen deaktiviert.");
+                document.getElementById('age-gate-spinner').classList.add('hidden');
+                document.getElementById('age-gate-content').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // 1. Authentifizierung
+                if (initialAuthToken) {
+                    await retryWithBackoff(() => signInWithCustomToken(auth, initialAuthToken));
+                } else {
+                    await retryWithBackoff(() => signInAnonymously(auth));
+                }
+
+                // 2. Auth State Listener und Age Gate Check
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        await checkAgeGateStatus();
+                    } else {
+                        isAuthReady = true;
+                        document.getElementById('age-gate-spinner').classList.add('hidden');
+                        document.getElementById('age-gate-content').classList.remove('hidden');
+                    }
+                });
+
+            } catch (e) {
+                console.error("Fehler bei der Firebase-Initialisierung oder Authentifizierung:", e);
+                document.getElementById('age-gate-spinner').classList.add('hidden');
+                document.getElementById('age-gate-content').classList.remove('hidden');
+            }
+        });
+
+        /**
+         * Überprüft den Age Gate Status in Firestore.
+         */
+        async function checkAgeGateStatus() {
+            if (!isAuthReady || !db) {
+                document.getElementById('age-gate-spinner').classList.add('hidden');
+                document.getElementById('age-gate-content').classList.remove('hidden');
+                return;
+            }
+
+            const ageGateRef = doc(db, 'artifacts', appId, 'users', userId, 'settings', 'ageGate');
+            
+            try {
+                const docSnap = await retryWithBackoff(() => getDoc(ageGateRef));
+                const isVerified = docSnap.exists() && docSnap.data().isVerified === true;
+                
+                if (isVerified) {
+                    openMainContent();
+                } else {
+                    document.getElementById('age-gate-spinner').classList.add('hidden');
+                    document.getElementById('age-gate-content').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Fehler beim Abrufen des Age Gate Status:", error);
+                document.getElementById('age-gate-spinner').classList.add('hidden');
+                document.getElementById('age-gate-content').classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Speichert den Age Gate Status in Firestore und zeigt den Inhalt an.
+         */
+        async function setAgeGateStatus(status) {
+            // CONTENT ÖFFNEN, DAMIT DER KLICK FUNKTIONIERT
+            openMainContent();
+            
+            if (!db || !isAuthReady || !status) {
+                console.warn("Firebase ist nicht bereit oder Status ist falsch. Keine Speicherung.");
+                return;
+            }
+
+            // ASYNCHRON VERSUCHEN, DEN STATUS ZU SPEICHERN
+            const ageGateRef = doc(db, 'artifacts', appId, 'users', userId, 'settings', 'ageGate');
+            
+            try {
+                await retryWithBackoff(() => setDoc(ageGateRef, { isVerified: status, verifiedAt: new Date() }));
+            } catch (error) {
+                console.error("Fehler beim Speichern des Age Gate Status in Firebase:", error);
+            }
+        }
+        
+    </script>
+</head>
+<body class="bg-dark-bg-deep min-h-screen flex justify-center items-start pt-8 pb-16">
+
+    <!-- Age Gate (Overlay) -->
+    <div id="age-gate" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95">
+        
+        <!-- Ladespinner -->
+        <div id="age-gate-spinner" class="text-white text-lg flex flex-col items-center">
+            <i class="fas fa-spinner fa-spin text-accent-glow text-3xl mb-4"></i>
+            <span>Überprüfe Altersstatus...</span>
+        </div>
+
+        <!-- Age Gate Content -->
+        <div id="age-gate-content" class="hidden w-11/12 max-w-sm p-6 bg-gray-900 rounded-xl text-center age-gate-glow">
+            <h1 class="text-3xl font-extrabold text-white mb-4">ZUGANG GESPERRT</h1>
+            <p class="text-sm text-gray-300 mb-8">
+                Sie müssen das gesetzliche Mindestalter von 18 Jahren bestätigen, um diesen Bereich zu betreten.
+                Glücksspiel kann süchtig machen.
+            </p>
+            <!-- Bestätigungsbutton ist jetzt Gold -->
+            <button id="confirm-age-btn" class="w-full mb-3 py-3 px-6 rounded-full font-black text-lg shadow-lg">
+                Ich bin 18+ Jahre alt
+            </button>
+            <button id="decline-age-btn" class="w-full py-3 px-6 rounded-full bg-gray-700 text-gray-300 font-semibold hover:bg-gray-600 transition-colors">
+                Zurück
+            </button>
+        </div>
+    </div>
+
+    <!-- Hauptinhalt Container (Gated) -->
+    <div id="main-content" class="hidden w-full mx-auto p-4" style="max-width: 700px;">
+        
+        <!-- Die Giveaway Detail Card -->
+        <div class="main-card w-full">
+            
+            <!-- Header/Logo Sektion -->
+            <div class="text-center mb-8">
+                <img src="weihnachten-logo.jpg" 
+                     alt="Idiotsbonus Logo Banner" 
+                     class="w-full h-auto max-w-sm mx-auto mb-3 rounded-lg"
+                     onerror="this.onerror=null;this.src='https://placehold.co/420x100/101010/ffffff?text=IDIOTENBONUS+LOGO'"
+                     style="object-fit: cover;">
+                
+                <h1 class="text-4xl md:text-5xl font-black mb-3 leading-tight">
+                    <span class="text-ruby-red">2000€</span> 
+                    <span class="text-bright-gold">WEIHNACHTS</span> CASH DROP
+                </h1>
+                <p class="text-xl text-gray-300 font-medium">Ihre Chance auf extra Gewinne in der Weihnachtszeit!</p>
+            </div>
+
+            <!-- TEILNAHME-ANLEITUNG -->
+            <div class="gold-section mb-8">
+                <h2 class="text-3xl font-extrabold mb-4 text-bright-gold flex items-center">
+                    <i class="fas fa-ticket-alt mr-3"></i> So sammeln Sie Tickets
+                </h2>
+                
+                <ul class="space-y-4 text-gray-200 text-base md:text-lg">
+                    <li class="flex items-start">
+                        <span class="font-black text-ruby-red text-2xl mr-3 flex-shrink-0">1.</span>
+                        <div>
+                            <span class="font-bold">Für Bestandskunden:</span> Für jede **10€ Einzahlung** auf einer der gelisteten Seiten erhalten Sie automatisch **1 Giveaway-Ticket**. (100€ Einzahlung = 10 Tickets)
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="font-black text-ruby-red text-2xl mr-3 flex-shrink-0">2.</span>
+                        <div>
+                            <span class="font-bold">Neukunden-Turbo:</span> Machen Sie Ihre erste Einzahlung über unsere Links und erhalten Sie **zusätzlich 10 Tickets** (z.B. 100€ Einzahlung = 10 Standard + 10 Neukunden = 20 Tickets).
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="font-black text-ruby-red text-2xl mr-3 flex-shrink-0">3.</span>
+                        <div>
+                            <span class="font-bold">Gültigkeitszeitraum:</span> Das Gewinnspiel läuft vom **01. Dezember bis zum 24. Dezember** 23:59 Uhr. Alle Einzahlungen in diesem Zeitraum zählen.
+                        </div>
+                    </li>
+                </ul>
+                
+                <p class="text-center text-sm text-gray-400 mt-6">
+                    Die Gewinner werden am 25. Dezember live im Stream bekannt gegeben.
+                </p>
+            </div>
+            
+            <!-- PREISE -->
+            <div class="p-6 bg-card-navy-mid rounded-xl mb-8">
+                <h2 class="text-3xl font-extrabold mb-4 text-bright-gold flex items-center">
+                    <i class="fas fa-gift mr-3"></i> Die Preise
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="p-3 bg-button-base-dark rounded-lg border-b-4 border-bright-gold">
+                        <p class="text-3xl font-black text-white">1000€</p>
+                        <p class="text-gray-400">Hauptgewinn</p>
+                    </div>
+                    <div class="p-3 bg-button-base-dark rounded-lg border-b-4 border-ruby-red">
+                        <p class="text-3xl font-black text-white">500€</p>
+                        <p class="text-gray-400">2. Platz</p>
+                    </div>
+                    <div class="p-3 bg-button-base-dark rounded-lg border-b-4 border-gray-400">
+                        <p class="text-3xl font-black text-white">5x 100€</p>
+                        <p class="text-gray-400">Plätze 3-7</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALL-TO-ACTION (Leitet jetzt zur Link-Übersicht index.html weiter) -->
+            <div class="text-center mt-8">
+                <a href="giveaway.html" class="cta-button inline-flex items-center justify-center w-full py-4 px-8 rounded-xl text-2xl font-black shadow-xl uppercase tracking-wider">
+                    <i class="fas fa-play-circle mr-3"></i> Jetzt teilnehmen & Tickets sichern!
+                </a>
+                <p class="text-sm text-gray-400 mt-3">
+                    Durch Klick gelangen Sie zur Übersicht aller Partner-Links auf der nächsten Seite.
+                </p>
+            </div>
+            
+        </div>
+        
+        <!-- Footer (wie in index.html) -->
+        <footer class="mt-8 text-center px-6">
+            <p class="text-xs text-gray-500 mb-2">
+                Glücksspiel kann süchtig machen. Spielen Sie verantwortungsbewusst.
+            </p>
+            <a href="https://www.bzga.de/service/infotelefone/gluecksspielsucht/" target="_blank" class="text-xs text-gray-500 hover:text-ruby-red underline">
+                Hilfe unter BZgA.de
+            </a>
+            <p class="text-xs text-gray-600 mt-4">
+                &copy; 2025 IDIOTENBONUS. Alle Rechte vorbehalten.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
